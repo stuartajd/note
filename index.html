@@ -50,8 +50,8 @@
   	</a>
 
   	<main v-cloak id="app" class="container-fluid vh-100 p-5 d-flex flex-column" :class="{ darkMode }">
-  		<div class="d-flex align-items-center justify-content-between mb-3 ">
-			  <div class="btn-group">
+  		<div class="d-flex align-items-md-center justify-content-between flex-md-row mb-3 flex-column">
+			  <div class="btn-group mb-3 mb-md-0">
 			    <a 
 			    	v-for="(tabDetails, index) in tabs"
 			    	:key="index"
@@ -62,9 +62,9 @@
 		    	>{{tabDetails.name}}</a>
 			  </div>
 
-			  <div class="bringToTop">
+			  <div class="bringToTop btn-group">
 		  		<a v-if="tabs.length > 1" class="btn" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="deleteTab">Delete current tab</a>
-		  		<a class="btn ms-2" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">New tab</a>
+		  		<a class="btn" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">New tab</a>
 		  	</div>
 			</div>
 
@@ -76,12 +76,12 @@
 	  		class="h-100 w-100 form-control mb-3 border-radius" 
 	  		placeholder="Start typing your notes..."></textarea>
 		
-			<div class="d-flex align-items-center justify-content-between">	
+			<div class="d-flex justify-content-between flex-column flex-md-row">	
 		  	<div>
 					We'll automatically save note to your browser as you type, double click a tab to change it's name. <br />
 					Note is created with <strong class="text-danger">♥️</strong>
 				</div>
-				<div class="text-end">
+				<div class="text-start text-md-end">
 					<small class="d-block mb-2">Remaining space: {{ remainingSpace }}MB / 5MB</small>
 					<div v-if="!darkMode">
 						<svg @click="useDarkMode(true)" class="text-dark cursor-pointer spinner" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="30px" viewBox="0 0 24 24" width="30px" fill="currentColor"><rect fill="none" height="24" width="24"/><path d="M11.01,3.05C6.51,3.54,3,7.36,3,12c0,4.97,4.03,9,9,9c4.63,0,8.45-3.5,8.95-8c0.09-0.79-0.78-1.42-1.54-0.95 c-0.84,0.54-1.84,0.85-2.91,0.85c-2.98,0-5.4-2.42-5.4-5.4c0-1.06,0.31-2.06,0.84-2.89C12.39,3.94,11.9,2.98,11.01,3.05z"/></svg>
