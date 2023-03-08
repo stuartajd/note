@@ -5,12 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Note - simple automatically saving notepad</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+		<link rel="icon" type="image/svg+xml" href="favicon.svg">
     <style>
     	body { background-color: #EEE }
     	textarea { resize: none; }
+    	[v-cloak] { display: none !important; }
+  		.bringToTop { z-index:200; }
+    	.spinner {
+				animation: 1.5s ease-in-out infinite spinner;
+			} 
+
+			@keyframes spinner { 
+				from { transform: rotate(-10deg) scale(1); }
+				50% { transform: rotate(15deg) scale(1.1); }
+				to { transform: rotate(-10deg) scale(1); }
+			}
+
+			main, main > * {
+				transition: all ease-in-out 250ms;
+			}
+
+			.darkMode {
+				background-color: #121212;
+				color: #eee;
+			}
+
+			.darkMode textarea, .darkMode textarea:focus, .darkMode::placeholder {
+				background-color:  #444;
+				color: #eee;
+			}
     </style>
   </head>
   <body>
+  	<noscript>
+			You are using an unsupported browser, please enable Javascript to use this application.
+		</noscript>
+
   	<a href="https://github.com/stuartajd/note" target="_blank">
   		<svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true" style="fill: rgb(21, 21, 19); color: rgb(255, 255, 255); position: absolute; top: 0px; border: 0px; right: 0px;">
   			<path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
@@ -19,34 +49,132 @@
   		</svg>
   	</a>
 
-  	<main id="app" class="container-fluid vh-100 p-5 d-flex flex-column">
+  	<main v-cloak id="app" class="container-fluid vh-100 p-5 d-flex flex-column" :class="{ darkMode }">
+  		<div class="d-flex align-items-center justify-content-between mb-3 ">
+			  <div class="btn-group">
+			    <a 
+			    	v-for="(tabDetails, index) in tabs"
+			    	:key="index"
+			    	class="btn"
+			    	:class="{active: index === tab, 'btn-light': !darkMode, 'btn-dark': darkMode}"
+			    	@click.prevent="changeTab(index)"
+			    	@dblClick.prevent="renameTab(index)"
+		    	>{{tabDetails.name}}</a>
+			  </div>
+
+			  <div class="bringToTop">
+		  		<a class="btn ml-3" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">New tab</a>
+		  		<a v-if="tabs.length > 1" class="btn ml-3" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="deleteTab">Delete current tab</a>
+		  	</div>
+			</div>
+
   		<textarea 
   			ref="note" 
-	  		v-model="note" 
+	  		v-model="tabs[tab].content" 
 	  		@keyup="save" 
 	  		@paste="save" 
-	  		class="h-100 w-100 form-control mb-3" 
+	  		class="h-100 w-100 form-control mb-3 border-radius" 
 	  		placeholder="Start typing your notes..."></textarea>
 		
-		<div class="text-end">
-			We'll automatically save note to your browser as you type.<br />
-			Note is created with ♥️
-		</div>
-  	</main>
+			<div class="d-flex align-items-center justify-content-between">	
+		  	<div>
+					We'll automatically save note to your browser as you type, double click a tab to change it's name. <br />
+					Note is created with <strong class="text-danger">♥️</strong>
+				</div>
+				<div class="text-end">
+					<small class="d-block mb-2">Remaining space: {{ remainingSpace }}MB / 5MB</small>
+					<div v-if="!darkMode">
+						<svg @click="useDarkMode(true)" class="text-dark cursor-pointer spinner" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="30px" viewBox="0 0 24 24" width="30px" fill="currentColor"><rect fill="none" height="24" width="24"/><path d="M11.01,3.05C6.51,3.54,3,7.36,3,12c0,4.97,4.03,9,9,9c4.63,0,8.45-3.5,8.95-8c0.09-0.79-0.78-1.42-1.54-0.95 c-0.84,0.54-1.84,0.85-2.91,0.85c-2.98,0-5.4-2.42-5.4-5.4c0-1.06,0.31-2.06,0.84-2.89C12.39,3.94,11.9,2.98,11.01,3.05z"/></svg>
+					</div>
+					
+					<div v-if="darkMode">
+						<svg @click="useDarkMode(false)" class="cursor-pointer ignore-dark-mode text-warning spinner" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="30px" viewBox="0 0 24 24" width="30px" fill="currentColor"><rect fill="none" height="24" width="24"/><path d="M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0 c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2 c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1 C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06 c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41 l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41 c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36 c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"/></svg>
+					</div>		
+				</div>
+			</div>
+		</main>
 
 	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 	<script>
 	  const note = new Vue({
 	  	el: "#app",
 	  	data: {
-	  		note: window.localStorage.getItem('note') || ''
+	  		tabs: [],
+	  		tab: 0,
+	  		darkMode: false,
+	  	},
+	  	created() {
+  			const note = window.localStorage.getItem('note');
+  			if(note){
+  				// Move note to default tab
+  				this.tabs.push({
+  					name: 'Untitled',
+  					content: note
+  				})
+
+  				window.localStorage.removeItem('note');
+  				this.save();
+  			}
+
+  			this.darkMode = String(window.localStorage.getItem('darkMode') || false) === "true";
+
+	  		let tabs = JSON.parse(window.localStorage.getItem('tabs')) || [];
+	  		if(!tabs.length) tabs = [{ name: 'Untitled', content: '' }];
+	  		this.tabs = tabs;
+
+	  		let tab = parseInt(window.localStorage.getItem('tab')) || 0;
+	  		if(!this.tabs[tab]) tab = 0
+  			this.tab = tab;
+
+  			this.$forceUpdate();
 	  	},
 	  	mounted(){
 	  		this.$nextTick(() => this.$refs.note.focus())
 	  	},
+	  	computed: {
+	  		remainingSpace() {
+	  			return 5 - (new Blob(Object.values(localStorage)).size / 1024 / 1024).toFixed(2);
+	  		}
+	  	},
 	  	methods: {
+	  		addTab(){
+	  			this.tabs.push({
+	  				name: 'Untitled',
+	  				content: ''
+	  			});
+	  			this.changeTab(this.tabs.length - 1)
+	  			this.save()
+	  		},
+	  		renameTab(index){
+	  			const name = window.prompt('What would you like this tab to be called?', this.tabs[index].name);
+	  			if(!name || !name.trim().length) return;
+	  			this.tabs[index].name = name;
+	  			this.save()
+	  		},
+	  		deleteTab(){
+	  			if(this.tabs.length === 1) return;
+
+	  			const shouldDelete = window.confirm('Are you sure you want to delete this tab?');
+	  			if(shouldDelete){
+	  				// Find the tab at the index.
+	  				this.$delete(this.tabs, this.tab);
+	  				this.changeTab(0);
+	  				this.save()
+	  			}
+	  		},
+	  		changeTab(index){
+	  			this.tab = index;
+	  			this.$nextTick(() => this.$refs.note.focus());
+	  			this.save()
+	  		},
+	  		useDarkMode(shouldUseDarkMode){
+	  			this.darkMode = shouldUseDarkMode;
+	  			this.save();
+	  		},
 	    	save() {
-	    		window.localStorage.setItem('note', this.note)
+	    		window.localStorage.setItem('tabs', JSON.stringify(this.tabs))
+	    		window.localStorage.setItem('tab', this.tab);
+		    	window.localStorage.setItem('darkMode', this.darkMode);
 	    	}
 	    }
 	  })
