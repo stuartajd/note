@@ -63,8 +63,8 @@
 			  </div>
 
 			  <div class="bringToTop">
-		  		<a class="btn ml-3" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">New tab</a>
-		  		<a v-if="tabs.length > 1" class="btn ml-3" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="deleteTab">Delete current tab</a>
+		  		<a v-if="tabs.length > 1" class="btn" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="deleteTab">Delete current tab</a>
+		  		<a class="btn ms-2" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">New tab</a>
 		  	</div>
 			</div>
 
