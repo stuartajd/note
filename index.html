@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Note - simple automatically saving notepad</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-		<link rel="icon" type="image/svg+xml" href="favicon.svg">
+	<link rel="icon" type="image/svg+xml" href="favicon.svg">
     <style>
     	body { background-color: #EEE }
-    	textarea { resize: none; }
+    	textarea { resize: none; border-radius: 0!important; }
     	[v-cloak] { display: none !important; }
   		.bringToTop { z-index:200; }
     	.spinner {
@@ -30,9 +30,19 @@
 				color: #eee;
 			}
 
-			.darkMode textarea, .darkMode textarea:focus, .darkMode::placeholder {
+			.darkMode .card-header, .darkMode textarea, .darkMode textarea:focus, .darkMode::placeholder {
 				background-color:  #444;
 				color: #eee;
+			}
+
+			.width-10 {
+				width: 10rem;
+			}
+
+			@media screen and (min-width: 768px) {
+				.vh-md-100 {
+					height: calc(100vh - 100px);
+				}
 			}
     </style>
   </head>
@@ -49,40 +59,14 @@
   		</svg>
   	</a>
 
-  	<main v-cloak id="app" class="container-fluid vh-100 p-5 d-flex flex-column" :class="{ darkMode }">
-  		<div class="d-flex align-items-md-center justify-content-between flex-md-row mb-3 flex-column">
-			  <div class="btn-group mb-3 mb-md-0">
-			    <a 
-			    	v-for="(tabDetails, index) in tabs"
-			    	:key="index"
-			    	class="btn"
-			    	:class="{active: index === tab, 'btn-light': !darkMode, 'btn-dark': darkMode}"
-			    	@click.prevent="changeTab(index)"
-			    	@dblClick.prevent="renameTab(index)"
-		    	>{{tabDetails.name}}</a>
-			  </div>
-
-			  <div class="bringToTop btn-group">
-		  		<a v-if="tabs.length > 1" class="btn" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="deleteTab">Delete current tab</a>
-		  		<a class="btn" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">New tab</a>
-		  	</div>
-			</div>
-
-  		<textarea 
-  			ref="note" 
-	  		v-model="tabs[tab].content" 
-	  		@keyup="save" 
-	  		@paste="save" 
-	  		class="h-100 w-100 form-control mb-3 border-radius" 
-	  		placeholder="Start typing your notes..."></textarea>
-		
-			<div class="d-flex justify-content-between flex-column flex-md-row">	
-		  	<div>
-					We'll automatically save note to your browser as you type, double click a tab to change it's name. <br />
-					Note is created with <strong class="text-danger">♥️</strong>
+  	<main v-cloak id="app" class="container-fluid vh-md-100 p-md-5 py-5 p-3 d-flex flex-column" :class="{ darkMode }">
+		<div class="row align-items-start h-100 mb-4">
+			<div class="col-md-12 mb-4 d-flex justify-content-between flex-column flex-md-row">	
+				<div>
+				We'll automatically save note to your browser as you type, double click a tab to change it's name. <br />
+				Note is created with <strong class="text-danger">♥️</strong>
 				</div>
-				<div class="text-start text-md-end">
-					<small class="d-block mb-2">Remaining space: {{ remainingSpace }}MB / 5MB</small>
+				<div class="text-start text-md-end my-4 my-md-0">
 					<div v-if="!darkMode">
 						<svg @click="useDarkMode(true)" class="text-dark cursor-pointer spinner" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="30px" viewBox="0 0 24 24" width="30px" fill="currentColor"><rect fill="none" height="24" width="24"/><path d="M11.01,3.05C6.51,3.54,3,7.36,3,12c0,4.97,4.03,9,9,9c4.63,0,8.45-3.5,8.95-8c0.09-0.79-0.78-1.42-1.54-0.95 c-0.84,0.54-1.84,0.85-2.91,0.85c-2.98,0-5.4-2.42-5.4-5.4c0-1.06,0.31-2.06,0.84-2.89C12.39,3.94,11.9,2.98,11.01,3.05z"/></svg>
 					</div>
@@ -92,7 +76,44 @@
 					</div>		
 				</div>
 			</div>
-		</main>
+			<div class="col-md-2 overflow-y-scroll h-100">
+				<a class="btn d-block mb-2 d-flex align-items-center justify-content-between fw-bold" :class="{'btn-light': !darkMode, 'btn-dark': darkMode}" @click.prevent="addTab">
+					New note 
+					
+					<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+						<path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+					  </svg>
+				</a>
+
+				<a 
+					v-for="(tabDetails, index) in tabs"
+					:key="index"
+					class="btn d-block mb-2"
+					:class="{active: index === tab, 'btn-light': !darkMode, 'btn-dark': darkMode}"
+					@click.stop.prevent="changeTab(index)"
+					@dblClick.stop.prevent="renameTab(index)"
+				>{{tabDetails.name}}</a>
+			</div>
+			<div class="col-md-10 h-100">
+				<div class="card h-100">
+					<div class="card-header d-flex align-items-center justify-content-between">
+						<span @click="renameTab(tab)" @dblclick="renameTab(tab)">{{ tabs[tab].name}}</span>
+						<button @click="deleteTab()" class="btn btn-sm btn-danger">Delete note</button>
+					</div>
+					<div class="card-body h-100 p-0">
+						<textarea 
+						ref="note" 
+						v-model="tabs[tab].content" 
+						@keyup="save" 
+						@paste="save" 
+						rows="10"
+						class="h-100 w-100 form-control border-0" 
+						placeholder="Start typing your notes..."></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
 
 	<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 	<script>
@@ -129,14 +150,12 @@
   			this.$forceUpdate();
 	  	},
 	  	mounted(){
-	  		this.$nextTick(() => this.$refs.note.focus())
-	  	},
-	  	computed: {
-	  		remainingSpace() {
-	  			return 5 - (new Blob(Object.values(localStorage)).size / 1024 / 1024).toFixed(2);
-	  		}
+	  		this.focus();
 	  	},
 	  	methods: {
+			focus() {
+				this.$nextTick(() => this.$refs.note.focus())
+			},
 	  		addTab(){
 	  			this.tabs.push({
 	  				name: 'Untitled',
@@ -146,15 +165,16 @@
 	  			this.save()
 	  		},
 	  		renameTab(index){
-	  			const name = window.prompt('What would you like this tab to be called?', this.tabs[index].name);
+	  			const name = window.prompt('What would you like this note to be called?', this.tabs[index].name);
 	  			if(!name || !name.trim().length) return;
 	  			this.tabs[index].name = name;
 	  			this.save()
+				this.focus();
 	  		},
 	  		deleteTab(){
 	  			if(this.tabs.length === 1) return;
 
-	  			const shouldDelete = window.confirm('Are you sure you want to delete this tab?');
+	  			const shouldDelete = window.confirm('Are you sure you want to delete this note?');
 	  			if(shouldDelete){
 	  				// Find the tab at the index.
 	  				this.$delete(this.tabs, this.tab);
