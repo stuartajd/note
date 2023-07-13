@@ -1,0 +1,31 @@
+body { background-color: #EEE }
+textarea { resize: none; border-radius: 0!important; }
+[v-cloak] { display: none !important; }
+.bringToTop { z-index:200; }
+.spinner {
+	animation: 1.5s ease-in-out infinite spinner;
+}
+@keyframes spinner {
+	from { transform: rotate(-10deg) scale(1); }
+	50% { transform: rotate(15deg) scale(1.1); }
+	to { transform: rotate(-10deg) scale(1); }
+}
+main, main > * {
+	transition: all ease-in-out 250ms;
+}
+.darkMode, .darkMode body  {
+	background-color: #121212;
+	color: #eee;
+}
+.darkMode .card-header, .darkMode textarea, .darkMode textarea:focus, .darkMode::placeholder {
+	background-color:  #444;
+	color: #eee;
+}
+.width-10 {
+	width: 10rem;
+}
+@media screen and (min-width: 768px) {
+	.vh-md-100 {
+		height: calc(100vh - 100px);
+	}
+}
